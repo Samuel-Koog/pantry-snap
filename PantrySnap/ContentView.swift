@@ -12,19 +12,37 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab: TabItem = .pantry
     @State private var cameraManager = CameraManager()
+    @State private var showAddSheetFromSnap = false
+    private let pantryViewModel = PantryViewModel()
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            cameraView
-            GlassTabBar(selectedTab: $selectedTab)
+            mainContent
+            GlassTabBar(selectedTab: $selectedTab, onSnapTap: {
+                showAddSheetFromSnap = true
+            })
         }
         .ignoresSafeArea(edges: .top)
+        .sheet(isPresented: $showAddSheetFromSnap) {
+            AddPantryItemSheet(viewModel: pantryViewModel) {
+                showAddSheetFromSnap = false
+            }
+        }
         .onAppear {
             cameraManager.configureSession()
             cameraManager.startSession()
         }
         .onDisappear {
             cameraManager.stopSession()
+        }
+    }
+
+    @ViewBuilder
+    private var mainContent: some View {
+        if selectedTab == .pantry {
+            PantryListView(viewModel: pantryViewModel)
+        } else {
+            cameraView
         }
     }
 
@@ -107,6 +125,7 @@ enum TabItem: String, CaseIterable {
 
 struct GlassTabBar: View {
     @Binding var selectedTab: TabItem
+    var onSnapTap: () -> Void = {}
 
     private let tabBarHeight: CGFloat = 72
     private let snapButtonSize: CGFloat = 60
@@ -186,7 +205,7 @@ struct GlassTabBar: View {
 
     private var snapButton: some View {
         Button {
-            // Snap action (no API yet)
+            onSnapTap()
         } label: {
             Circle()
                 .fill(
@@ -211,6 +230,7 @@ struct GlassTabBar: View {
         .buttonStyle(.plain)
         .offset(y: -snapButtonOverlap)
         .accessibilityLabel("Snap photo")
+        .accessibilityHint("Opens form to add a pantry item")
     }
 }
 
