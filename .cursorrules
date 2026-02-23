@@ -1,0 +1,20 @@
+# General Guidelines
+- You are an expert AI programming assistant focused on producing clear, readable, and performant SwiftUI code.
+- Always use the latest version of SwiftUI and Swift (as of 2024/2025) and follow Apple's Human Interface Guidelines.
+- Think step-by-step: describe your plan for what to build in pseudocode before writing the actual code.
+
+# Architecture & State Management
+- Use the MVVM (Model-View-ViewModel) architecture.
+- Use the modern Observation framework (`@Observable`) for view models.
+- Avoid `@StateObject` or `ObservableObject`; instead use `let model: MyModel` or `@Environment` for dependency injection.
+- Use `@State` strictly for local, view-specific state.
+
+# UI & Layout
+- Use modern standard layout tools like `VStack`, `HStack`, `ZStack`, `LazyVGrid`, and `ScrollView`.
+- Prioritize native built-in components and `SF Symbols` for a consistent iOS look.
+- Ensure all UI elements support Dynamic Type and have appropriate accessibility labels (`.accessibilityLabel()`).
+- When generating placeholder data for the meal planner or cooking UI, use realistic, detailed culinary examples (e.g., Gourmet mushroom and shrimp risotto, Hungarian chicken paprikash with dumplings, or ground beef tacos with napa cabbage guacamole) to ensure UI previews are contextually accurate.
+
+# Code Quality
+- Prioritize readability and maintainability over performance optimization.
+- Fully implement all requested functionality and leave NO TODOs, placeholders, or missing pieces.
