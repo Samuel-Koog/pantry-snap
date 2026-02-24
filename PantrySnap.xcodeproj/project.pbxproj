@@ -10,9 +10,22 @@
 		5A3FC6BB2F4C129E00E481CD /* PantrySnap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PantrySnap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5A6E7DB72F4D215B001C0FC8 /* Exceptions for "PantrySnap" folder in "PantrySnap" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5A3FC6BA2F4C129E00E481CD /* PantrySnap */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5A3FC6BD2F4C129E00E481CD /* PantrySnap */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A6E7DB72F4D215B001C0FC8 /* Exceptions for "PantrySnap" folder in "PantrySnap" target */,
+			);
 			path = PantrySnap;
 			sourceTree = "<group>";
 		};
@@ -251,9 +264,10 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PantrySnap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PantrySnap;
-				INFOPLIST_KEY_NSCameraUsageDescription = "\"Use Camera?\"";
 				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsLocalNetworking = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "\"Use Camera?\"";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -302,9 +316,10 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PantrySnap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PantrySnap;
-				INFOPLIST_KEY_NSCameraUsageDescription = "\"Use Camera?\"";
 				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsLocalNetworking = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "\"Use Camera?\"";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;

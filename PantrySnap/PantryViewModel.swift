@@ -32,12 +32,19 @@ final class PantryViewModel {
         self.encoder = JSONEncoder()
     }
 
-    /// Fetches all pantry items from GET /pantry/.
-    func fetchItems() async {
+    /// Fetches pantry items from GET /pantry/. Optional `query` adds ?q= for name filter. Results sorted by earliest expiry.
+    func fetchItems(query: String? = nil) async {
         await MainActor.run { isLoading = true; errorMessage = nil }
 
-        guard let url = URL(string: APIConfig.baseURL) else {
+        guard var components = URLComponents(string: APIConfig.baseURL) else {
             await MainActor.run { errorMessage = "Invalid base URL"; isLoading = false }
+            return
+        }
+        if let q = query?.trimmingCharacters(in: .whitespacesAndNewlines), !q.isEmpty {
+            components.queryItems = [URLQueryItem(name: "q", value: q)]
+        }
+        guard let url = components.url else {
+            await MainActor.run { errorMessage = "Invalid URL"; isLoading = false }
             return
         }
 
@@ -52,7 +59,14 @@ final class PantryViewModel {
                 return
             }
             let decoded = try decoder.decode([PantryItem].self, from: data)
-            await MainActor.run { items = decoded; isLoading = false }
+            let sorted = decoded.sorted { a, b in
+                switch (a.earliestExpiry, b.earliestExpiry) {
+                case let (x?, y?): return x < y
+                case (nil, _): return false
+                case (_, nil): return true
+                }
+            }
+            await MainActor.run { items = sorted; isLoading = false }
         } catch {
             await MainActor.run { errorMessage = error.localizedDescription; isLoading = false }
         }
@@ -88,9 +102,47 @@ final class PantryViewModel {
                 return
             }
             if http.statusCode == 201 {
-                await fetchItems()
+                await fetchItems(query: nil)
             } else {
                 await MainActor.run { errorMessage = "Add failed: \(http.statusCode)" }
+            }
+        } catch {
+            await MainActor.run { errorMessage = error.localizedDescription }
+        }
+    }
+
+    /// Updates an existing item via PUT /pantry/:id/. On success, refreshes the list.
+    func updateItem(id: Int, name: String, quantity: Int, unit: String, expiryDates: [String]) async {
+        await MainActor.run { errorMessage = nil }
+
+        let base = APIConfig.baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard let url = URL(string: "\(base)/\(id)/") else {
+            await MainActor.run { errorMessage = "Invalid URL" }
+            return
+        }
+
+        let payload = PantryItem.UpdatePayload(
+            name: name,
+            quantity: quantity,
+            unit: unit,
+            expiry_dates: expiryDates
+        )
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        do {
+            request.httpBody = try encoder.encode(payload)
+            let (_, response) = try await session.data(for: request)
+            guard let http = response as? HTTPURLResponse else {
+                await MainActor.run { errorMessage = "Invalid response" }
+                return
+            }
+            if (200 ..< 300).contains(http.statusCode) {
+                await fetchItems(query: nil)
+            } else {
+                await MainActor.run { errorMessage = "Update failed: \(http.statusCode)" }
             }
         } catch {
             await MainActor.run { errorMessage = error.localizedDescription }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AddPantryItemSheet: View {
     let viewModel: PantryViewModel
+    var initialName: String? = nil
     var onDismiss: () -> Void
 
     @State private var name = ""
@@ -59,6 +60,11 @@ struct AddPantryItemSheet: View {
                 }
             }
             .interactiveDismissDisabled(isSubmitting)
+            .onAppear {
+                if let n = initialName, !n.isEmpty {
+                    name = n
+                }
+            }
             .overlay {
                 if isSubmitting {
                     Color.black.opacity(0.3)
@@ -107,5 +113,5 @@ struct AddPantryItemSheet: View {
 }
 
 #Preview {
-    AddPantryItemSheet(viewModel: PantryViewModel()) {}
+    AddPantryItemSheet(viewModel: PantryViewModel(), initialName: nil) {}
 }

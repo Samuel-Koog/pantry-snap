@@ -13,18 +13,21 @@ struct ContentView: View {
     @State private var selectedTab: TabItem = .pantry
     @State private var cameraManager = CameraManager()
     @State private var showAddSheetFromSnap = false
+    @State private var scannedTextForAdd: String?
+    @State private var isScanningText = false
     private let pantryViewModel = PantryViewModel()
 
     var body: some View {
         ZStack(alignment: .bottom) {
             mainContent
             GlassTabBar(selectedTab: $selectedTab, onSnapTap: {
+                selectedTab = .plan
                 showAddSheetFromSnap = true
             })
         }
-        .ignoresSafeArea(edges: .top)
         .sheet(isPresented: $showAddSheetFromSnap) {
-            AddPantryItemSheet(viewModel: pantryViewModel) {
+            AddPantryItemSheet(viewModel: pantryViewModel, initialName: scannedTextForAdd) {
+                scannedTextForAdd = nil
                 showAddSheetFromSnap = false
             }
         }
@@ -49,10 +52,51 @@ struct ContentView: View {
     @ViewBuilder
     private var cameraView: some View {
         if cameraManager.isAvailable, let session = cameraManager.captureSession {
-            CameraPreview(session: session)
-                .accessibilityLabel("Live camera feed")
+            ZStack {
+                CameraPreview(session: session)
+                    .ignoresSafeArea(edges: .top)
+                    .accessibilityLabel("Live camera feed")
+                cameraOverlay
+            }
         } else {
             cameraUnavailableView
+        }
+    }
+
+    private var cameraOverlay: some View {
+        ZStack {
+            // Reticle: centered rounded rect showing scan area
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(.white, lineWidth: 2)
+                .frame(width: 260, height: 80)
+                .accessibilityHidden(true)
+            VStack {
+                Spacer()
+                Button {
+                    scanTextAndOpenAddSheet()
+                } label: {
+                    Label("Scan Text", systemImage: "text.viewfinder")
+                        .font(.headline)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(.ultraThinMaterial, in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(isScanningText)
+                .padding(.bottom, 100)
+                .accessibilityLabel("Scan text")
+                .accessibilityHint("Captures text from the camera to pre-fill the item name")
+            }
+        }
+        .allowsHitTesting(true)
+    }
+
+    private func scanTextAndOpenAddSheet() {
+        isScanningText = true
+        cameraManager.captureAndRecognizeText { text in
+            isScanningText = false
+            scannedTextForAdd = text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false ? text : nil
+            showAddSheetFromSnap = true
         }
     }
 
